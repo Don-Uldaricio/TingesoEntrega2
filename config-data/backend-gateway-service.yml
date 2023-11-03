@@ -1,5 +1,6 @@
 server:
-  port: 8080
+  port: 8090
+  
 eureka:
   client:
     fetch-registry: true
@@ -8,6 +9,7 @@ eureka:
       default-zone: http://${EUREKA:localhost}:8761/eureka
   instance:
     hostname: localhost
+
 spring:
   cloud:
     gateway:
@@ -24,15 +26,15 @@ spring:
             allowed-headers: "*"
             allow-credentials: true
       routes:
-        - id: student-service
-          uri: lb://student-service
+        - id: backend-estudiante-service
+          uri: lb://backend-estudiante-service
           predicates:
-            - Path=/students/**
-        - id: fee-service
-          uri: lb://fee-service
+            - Path=/estudiantes/**
+        - id: backend-arancel-service
+          uri: lb://backend-arancel-service
           predicates:
-            - Path=/fees/**
-        - id: exam-service
-          uri: lb://exam-service
+            - Path=/aranceles/**
+        - id: backend-cuota-service
+          uri: lb://backend-cuota-service
           predicates:
-            - Path=/exams/**
+            - Path=/cuotas/**

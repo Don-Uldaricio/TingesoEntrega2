@@ -10,7 +10,7 @@ import tingeso2.backendcuotaservice.entities.Cuota;
 import tingeso2.backendcuotaservice.services.CuotaService;
 
 @RestController
-@RequestMapping
+@RequestMapping("/cuotas")
 public class CuotaController {
     @Autowired
     private CuotaService cuotaService;

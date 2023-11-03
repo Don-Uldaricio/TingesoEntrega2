@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import tingeso2.backendarancelservice.services.ArancelService;
 
 @RestController
-@RequestMapping
+@RequestMapping("/aranceles")
 public class ArancelController {
     @Autowired
     private ArancelService arancelService;
