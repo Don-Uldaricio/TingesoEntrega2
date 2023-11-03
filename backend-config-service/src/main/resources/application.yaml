@@ -1,8 +1,6 @@
 server:
   port: 8090
 spring:
-  application:
-    name: backend-config-service
   cloud:
     config:
       server:
@@ -10,3 +8,5 @@ spring:
           default-label: main
           uri: https://github.com/Don-Uldaricio/TingesoEntrega2
           search-paths: config-data
+  application:
+    name: backend-config-service
