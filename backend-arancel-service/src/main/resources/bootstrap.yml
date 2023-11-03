@@ -1,0 +1,23 @@
+spring:
+  devtools:
+    restart:
+      additional-paths: src/main/java
+  application:
+    name: backend-arancel-service
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/tingesoArancel
+    username: postgres
+    password: 1234
+  cloud:
+    config:
+      enabled: true
+      uri: http://localhost:8090
+  sql:
+    init:
+      platform: postgres
