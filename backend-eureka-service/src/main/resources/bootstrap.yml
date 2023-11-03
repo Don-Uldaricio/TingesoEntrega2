@@ -1,11 +1,11 @@
 spring:
   application:
-    name: backend-eureka-service
+    name: eureka-service
   cloud:
     config:
       fail-fast: true
       retry:
-        maxAttempts: 200
-        maxInterval: 10000
+        max-attempts: 200
+        max-interval: 10000
       enabled: true
       uri: http://localhost:8090
