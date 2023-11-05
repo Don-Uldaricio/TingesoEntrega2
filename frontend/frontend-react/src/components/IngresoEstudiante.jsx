@@ -7,6 +7,7 @@ export default function IngresoEstudiante() {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [rut, setRut] = useState('');
+  const [nombreColegio, setNombreColegio] = useState('');
   const [tipoColegio, setTipoColegio] = useState('');
   const [anioEgreso, setAnioEgreso] = useState('');
   const [numeroCuotas, setNumeroCuotas] = useState('');
@@ -36,10 +37,6 @@ export default function IngresoEstudiante() {
 
   // Array años de egreso
   const anios = Array.from({ length: 2023 - 1990 + 1 }, (v, k) => 1990 + k);
-
-  // Array Número de cuotas
-  const cuotas = Array.from({ length: 11 }, (v, k) => k);
-
   // Manejador para el envío del formulario
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevenir el comportamiento por defecto del formulario
@@ -90,13 +87,25 @@ export default function IngresoEstudiante() {
         </label>
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="apellido">
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="rut">
           <input 
             type="text" 
             id="rut"
             placeholder='RUT'
             value={rut} 
             onChange={e => setRut(e.target.value)}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </label>
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="nombreColegio">
+          <input 
+            type="text" 
+            id="nombreColegio"
+            placeholder='Nombre del Colegio'
+            value={nombreColegio} 
+            onChange={e => setNombreColegio(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </label>
@@ -145,7 +154,7 @@ export default function IngresoEstudiante() {
       </select>
       </div>
       <div className="flex w-full items-center justify-between">
-        <button type="submit" className="bg-lime-500 hover:bg-lime-600 text-white w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        <button type="submit" className="bg-lime-600 hover:bg-lime-700 text-white w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
           Ingresar
         </button>
       </div>
