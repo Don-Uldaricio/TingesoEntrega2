@@ -17,7 +17,6 @@ public class Estudiante {
     private String rut;
     private String apellidos;
     private String nombres;
-    private String fechaNacimiento;
     private String tipoColegio;
     private String nombreColegio;
     private Integer egreso;

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import EstudianteService from "../services/EstudianteService";
 import Layout from './Layout';
 
 export default function IngresoEstudiante() {
+
   // Estado para cada uno de los campos del formulario
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
+  const [nombres, setNombres] = useState('');
+  const [apellidos, setApellidos] = useState('');
   const [rut, setRut] = useState('');
   const [nombreColegio, setNombreColegio] = useState('');
   const [tipoColegio, setTipoColegio] = useState('');
@@ -37,19 +38,23 @@ export default function IngresoEstudiante() {
 
   // Array años de egreso
   const anios = Array.from({ length: 2023 - 1990 + 1 }, (v, k) => 1990 + k);
+  
   // Manejador para el envío del formulario
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevenir el comportamiento por defecto del formulario
 
+    let estudiante = {
+      rut: rut,
+      apellidos: apellidos,
+      nombres: nombres,
+      tipoColegio: tipoColegio,
+      nombreColegio: nombreColegio,
+      egreso: anioEgreso,
+      numeroCuotas: numeroCuotas
+    };
+
     try {
-      const response = await axios.post('/estudiantes', {
-        nombre,
-        apellido,
-        rut,
-        tipoColegio,
-        anioEgreso: parseInt(anioEgreso), // Asegurarse de que sea un número
-        numeroCuotas: parseInt(numeroCuotas), // Asegurarse de que sea un número
-      });
+      const response = await EstudianteService.ingresarEstudiante(estudiante);
 
       console.log(response.data); // Tratar la respuesta del servidor como se desee
     } catch (error) {
@@ -66,10 +71,10 @@ export default function IngresoEstudiante() {
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="nombre">
           <input 
             type="text" 
-            id="nombre"
-            placeholder='Nombre'
-            value={nombre} 
-            onChange={e => setNombre(e.target.value)}
+            id="nombres"
+            placeholder='Nombres'
+            value={nombres} 
+            onChange={e => setNombres(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </label>
@@ -78,10 +83,10 @@ export default function IngresoEstudiante() {
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="apellido">
           <input 
             type="text" 
-            id="apellido"
-            placeholder='Apellido'
-            value={apellido} 
-            onChange={e => setApellido(e.target.value)}
+            id="apellidos"
+            placeholder='Apellidos'
+            value={apellidos} 
+            onChange={e => setApellidos(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </label>

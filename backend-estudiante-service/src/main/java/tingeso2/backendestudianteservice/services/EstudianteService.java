@@ -1,7 +1,9 @@
 package tingeso2.backendestudianteservice.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import tingeso2.backendestudianteservice.entities.Estudiante;
 import tingeso2.backendestudianteservice.models.Arancel;
@@ -21,57 +23,72 @@ public class EstudianteService {
     @Autowired
     RestTemplate restTemplate;
 
+    public List<Estudiante> getAllEstudiantes() {
+        return estudianteRepository.findAll();
+    }
+
     public Estudiante findByRut(String rut){
         return estudianteRepository.findByRut(rut);
     }
 
-    public void guardarEstudiante(Estudiante e) {
-        e.setPromedioNotas(0f);
-        e.setNumeroExamenes(0);
-        estudianteRepository.save(e);
-        arancelService.crearArancel(e);
+    public List<Cuota> buscarCuotasPorRut(String rut) {
+        return restTemplate.getForObject("http://backend-cuota-service/cuotas/" + rut, List.class);
     }
 
     public Arancel buscarArancelPorRut(String rut) {
-        if (estudianteRepository.findByRut(rut) != null) {
-            return arancelService.buscarPorRut(rut);
-        }
-        return null;
+        return restTemplate.getForObject("http://backend-arancel-service/aranceles/" + rut, Arancel.class);
     }
 
-    public ArrayList<Cuota> buscarCuotasPorRut(String rut) {
-        if (estudianteRepository.findByRut(rut) != null) {
-            return arancelService.buscarCuotas(rut);
+    public void ingresarEstudiante(Estudiante e) {
+        e.setPromedioNotas(0f);
+        e.setNumeroExamenes(0);
+        estudianteRepository.save(e);
+        try {
+            String arancelServiceUrl = "http://backend-arancel-service/aranceles/generar-plantilla/" + e.getRut();
+            restTemplate.postForObject(arancelServiceUrl, e.getRut(), Void.class);
+        } catch (RestClientException err) {
+            err.printStackTrace();
         }
-        return null;
     }
 
     public void generarPlanilla(String rut) {
-        arancelService.actualizarArancel(rut);
+        try {
+            String arancelServiceUrl = "http://backend-arancel-service/aranceles/actualizar/" + rut;
+            restTemplate.postForObject(arancelServiceUrl, rut, Void.class);
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
     }
 
     public ArrayList<Integer> datosPagoArancel(String rut) {
-        return arancelService.calcularDatosArancel(rut);
+        String arancelServiceUrl = "http://backend-arancel-service/aranceles/datos-arancel/" + rut;
+        return restTemplate.postForObject(arancelServiceUrl, rut, ArrayList.class);
     }
 
     public void calcularDescuentoNotas(String[] datos) {
-        // Aumentamos el número de exámenes que ha dado a uno y lo guardamos en la BD
         Estudiante estudiante = findByRut(datos[0]);
         estudiante.setNumeroExamenes(estudiante.getNumeroExamenes() + 1);
         estudianteRepository.save(estudiante);
 
-        // Sacamos los datos del String de entrada a la función
         String fechaPrueba = datos[1];
         float promedioNotas = Float.parseFloat(datos[2]);
 
-        // Transformamos la fecha según formato para extraer el día del mes y aplicar descuento al siguiente mes
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate fecha = LocalDate.parse(fechaPrueba, formato);
         int mesExamen = fecha.getMonthValue();
 
-        // Si es un mes válido aplicamos descuento (ya que el ultimo mes del sistema es el 10)
         if (mesExamen < 10) {
-            arancelService.calcularDescuentoArancel(mesExamen, datos[0], promedioNotas);
+            String url = "http://backend-arancel-service/aranceles/calcular-descuento/" + datos[0];
+            // Creamos el objeto que vamos a enviar
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("mesExamen", mesExamen);
+            requestBody.put("promedioNotas", promedioNotas);
+
+            // Crear el objeto HttpEntity que incluye el request body y los headers si son necesarios
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody);
+
+            // Realizar la petición POST
+            restTemplate.postForObject(url, requestEntity, Void.class);
         }
     }
 
