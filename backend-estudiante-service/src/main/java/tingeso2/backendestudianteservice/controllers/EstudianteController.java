@@ -50,7 +50,7 @@ public class EstudianteController {
             return ResponseEntity.notFound().build();
         }
         List<Cuota> cuotas = estudianteService.buscarCuotasPorRut(rut);
-        if(cuotas.isEmpty()){
+        if(cuotas.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(cuotas);

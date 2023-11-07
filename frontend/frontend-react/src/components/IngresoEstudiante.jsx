@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { redirect } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import EstudianteService from "../services/EstudianteService";
 import Layout from './Layout';
 
@@ -13,6 +13,8 @@ export default function IngresoEstudiante() {
   const [tipoColegio, setTipoColegio] = useState('');
   const [anioEgreso, setAnioEgreso] = useState('');
   const [numeroCuotas, setNumeroCuotas] = useState('');
+
+  let navigate = useNavigate();
 
   const maxCuotas = tipoColegio === 'Municipal' ? 10 :
                     tipoColegio === 'Subvencionado' ? 7 : 
@@ -54,12 +56,12 @@ export default function IngresoEstudiante() {
     try {
       const response = await EstudianteService.ingresarEstudiante(estudiante);
 
-      console.log(estudiante);
+      console.log(response.data);
     } catch (error) {
       console.error("Hubo un error al enviar los datos del estudiante:", error);
     }
 
-    return redirect("/");
+    navigate('/');
   };
 
   return (

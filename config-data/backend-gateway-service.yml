@@ -1,6 +1,6 @@
 server:
   port: 8080
-  
+
 eureka:
   client:
     fetch-registry: true
@@ -30,3 +30,11 @@ spring:
           uri: lb://backend-estudiante-service
           predicates:
             - Path=/estudiantes/**
+        - id: backend-arancel-service
+          uri: lb://backend-arancel-service
+          predicates:
+            - Path=/aranceles/**
+        - id: backend-cuota-service
+          uri: lb://backend-cuota-service
+          predicates:
+            - Path=/cuotas/**

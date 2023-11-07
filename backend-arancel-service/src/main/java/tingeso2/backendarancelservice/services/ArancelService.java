@@ -1,6 +1,9 @@
 package tingeso2.backendarancelservice.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -10,9 +13,7 @@ import tingeso2.backendarancelservice.models.Estudiante;
 import tingeso2.backendarancelservice.repositories.ArancelRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class ArancelService {
@@ -22,8 +23,7 @@ public class ArancelService {
     @Autowired
     RestTemplate restTemplate;
 
-    // Método que crea el arancel de un estudiante y las cuotas asociadas a esta
-    public void crearArancel(Estudiante e) {
+    public Arancel crearArancel(Estudiante e) {
         Arancel arancel = new Arancel();
         if (e.getNumeroCuotas() == 0) {
             arancel.setMonto((int) (1500000 * 0.5));
@@ -39,20 +39,22 @@ public class ArancelService {
             arancel.setNumCuotas(e.getNumeroCuotas());
             arancelRepository.save(arancel);
             try {
-                String cuotaServiceUrl = "http://backend-cuota-service/cuotas/crear-cuotas/" + e.getRut();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<Estudiante> request = new HttpEntity<>(e, headers);
+                String cuotaServiceUrl = "http://backend-cuota-service/cuotas/crear-cuotas";
                 restTemplate.postForObject(cuotaServiceUrl, e, Estudiante.class);
             } catch (RestClientException err) {
                 err.printStackTrace();
             }
         }
+        return arancel;
     }
 
-    // Calcula la diferencia de años de la fecha actual con una fecha entregada
     public int diferenciaFechaActual(int fecha) {
         return LocalDate.now().getYear() - fecha;
     }
 
-    // Calcula el descuento de un estudiante en base al tipo de colegio y años desde que egresó
     public Float calcularDescuento(String tipoColegio, int aniosEgreso) {
         float descuento = 0;
 
@@ -89,20 +91,21 @@ public class ArancelService {
         Arancel arancel = buscarPorRut(rut);
         if (arancel != null) {
             if (arancel.getNumCuotas() != 0) {
-                return cuotaService.listarCuotas(arancel.getIdArancel());
+                String cuotaServiceUrl = "http://backend-cuota-service/cuotas/listar-cuotas/" + rut;
+                return restTemplate.getForObject(cuotaServiceUrl, ArrayList.class);
             }
         }
         return new ArrayList<>();
     }
 
-    // Se encarga de actualizar el arancel y las cuotas asociadas
     public void actualizarArancel(String rut) {
         int nuevoArancel = 0;
         Arancel arancel = buscarPorRut(rut);
         if (arancel != null) {
             if (arancel.getNumCuotas() != 0) {
                 ArrayList<Cuota> cuotas = buscarCuotas(rut);
-                cuotaService.actualizarCuotas(cuotas);
+                String cuotaServiceUrl = "http://backend-cuota-service/cuotas/actualizar-cuotas";
+                restTemplate.put(cuotaServiceUrl, cuotas);
                 for (Cuota c: cuotas) {
                     nuevoArancel = nuevoArancel + (int) (c.getMonto() * (1 + c.getInteres()));
                 }
@@ -166,7 +169,18 @@ public class ArancelService {
                 descuento = 0.02f;
             }
         }
-        cuotaService.calcularDescuentoCuota(cuotaMes, descuento);
+        String cuotaServiceUrl = "http://backend-cuota-service/cuotas/calcular-descuento-cuotas";
+
+        // Creamos el objeto que vamos a enviar
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("cuotaMes", cuotaMes);
+        requestBody.put("descuento", descuento);
+
+        // Crear el objeto HttpEntity que incluye el request body y los headers si son necesarios
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody);
+
+        // Realizar la petición POST
+        restTemplate.put(cuotaServiceUrl, requestEntity);
     }
 
 }

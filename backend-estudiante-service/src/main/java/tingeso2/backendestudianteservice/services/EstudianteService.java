@@ -2,6 +2,8 @@ package tingeso2.backendestudianteservice.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -45,8 +47,11 @@ public class EstudianteService {
         estudianteRepository.save(e);
         /*
         try {
-            String arancelServiceUrl = "http://backend-arancel-service/aranceles/generar-plantilla/" + e.getRut();
-            restTemplate.postForObject(arancelServiceUrl, e, Estudiante.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Estudiante> request = new HttpEntity<>(e, headers);
+            String arancelServiceUrl = "http://backend-arancel-service/aranceles/generar-plantilla";
+            restTemplate.postForObject(arancelServiceUrl, request, Estudiante.class);
         } catch (RestClientException err) {
             err.printStackTrace();
         }

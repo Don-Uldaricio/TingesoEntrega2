@@ -15,7 +15,7 @@ public class CuotaController {
     @Autowired
     private CuotaService cuotaService;
 
-    @PostMapping("/pagarCuota")
+    @PostMapping("/pagar-cuota")
     public String modificarCuota(@RequestParam Integer idCuota) {
         // Obtén la cuota de la base de datos utilizando cuotaId
         Cuota cuota = cuotaService.buscarCuotaPorId(idCuota);
