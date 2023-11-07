@@ -43,12 +43,14 @@ public class EstudianteService {
         e.setPromedioNotas(0f);
         e.setNumeroExamenes(0);
         estudianteRepository.save(e);
+        /*
         try {
             String arancelServiceUrl = "http://backend-arancel-service/aranceles/generar-plantilla/" + e.getRut();
             restTemplate.postForObject(arancelServiceUrl, e.getRut(), Void.class);
         } catch (RestClientException err) {
             err.printStackTrace();
         }
+        */
     }
 
     public void generarPlanilla(String rut) {
