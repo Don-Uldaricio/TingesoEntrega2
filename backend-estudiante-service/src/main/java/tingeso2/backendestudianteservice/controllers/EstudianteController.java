@@ -38,8 +38,9 @@ public class EstudianteController {
     }
 
     @PostMapping("/ingresar-estudiante")
-    public void ingresarEstudiante(@RequestBody Estudiante estudiante) {
+    public ResponseEntity<Estudiante> ingresarEstudiante(@RequestBody Estudiante estudiante) {
         estudianteService.ingresarEstudiante(estudiante);
+        return ResponseEntity.ok(estudiante);
     }
 
     @GetMapping("/cuotas/{rut}")

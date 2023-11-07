@@ -2,6 +2,7 @@ package tingeso2.backendarancelservice.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import tingeso2.backendarancelservice.entities.Arancel;
 import tingeso2.backendarancelservice.models.Cuota;
@@ -37,7 +38,12 @@ public class ArancelService {
             arancel.setRutEstudiante(e.getRut());
             arancel.setNumCuotas(e.getNumeroCuotas());
             arancelRepository.save(arancel);
-            cuotaService.crearCuotas(arancel);
+            try {
+                String cuotaServiceUrl = "http://backend-cuota-service/cuotas/crear-cuotas/" + e.getRut();
+                restTemplate.postForObject(cuotaServiceUrl, e, Estudiante.class);
+            } catch (RestClientException err) {
+                err.printStackTrace();
+            }
         }
     }
 

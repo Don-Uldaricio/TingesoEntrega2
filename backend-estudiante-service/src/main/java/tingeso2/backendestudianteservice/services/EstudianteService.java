@@ -39,18 +39,19 @@ public class EstudianteService {
         return restTemplate.getForObject("http://backend-arancel-service/aranceles/" + rut, Arancel.class);
     }
 
-    public void ingresarEstudiante(Estudiante e) {
+    public Estudiante ingresarEstudiante(Estudiante e) {
         e.setPromedioNotas(0f);
         e.setNumeroExamenes(0);
         estudianteRepository.save(e);
         /*
         try {
             String arancelServiceUrl = "http://backend-arancel-service/aranceles/generar-plantilla/" + e.getRut();
-            restTemplate.postForObject(arancelServiceUrl, e.getRut(), Void.class);
+            restTemplate.postForObject(arancelServiceUrl, e, Estudiante.class);
         } catch (RestClientException err) {
             err.printStackTrace();
         }
         */
+        return e;
     }
 
     public void generarPlanilla(String rut) {

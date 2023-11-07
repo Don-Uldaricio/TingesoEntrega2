@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { redirect } from 'react-router-dom';
 import EstudianteService from "../services/EstudianteService";
 import Layout from './Layout';
 
@@ -13,6 +14,17 @@ export default function IngresoEstudiante() {
   const [anioEgreso, setAnioEgreso] = useState('');
   const [numeroCuotas, setNumeroCuotas] = useState('');
 
+  const maxCuotas = tipoColegio === 'Municipal' ? 10 :
+                    tipoColegio === 'Subvencionado' ? 7 : 
+                    tipoColegio === 'Privado' ? 4 : 0;
+
+  const cuotasOpciones = [...Array(maxCuotas + 1).keys()].map(cuota => (
+    <option key={cuota} value={cuota}>{cuota}</option>
+  ));
+
+  // Array años de egreso
+  const anios = Array.from({ length: 2023 - 1990 + 1 }, (v, k) => 1990 + k);
+
   const handleTipoColegioChange = (event) => {
     setTipoColegio(event.target.value);
     setNumeroCuotas('');
@@ -25,23 +37,9 @@ export default function IngresoEstudiante() {
   const handleCuotasChange = (event) => {
     setNumeroCuotas(event.target.value);
   };
-
-  // Definir el número máximo de cuotas en función del tipo de colegio
-  const maxCuotas = tipoColegio === 'Municipal' ? 10 :
-                    tipoColegio === 'Subvencionado' ? 7 : 
-                    tipoColegio === 'Privado' ? 4 : 0;
-
-  // Crear opciones de cuotas basadas en el máximo
-  const cuotasOpciones = [...Array(maxCuotas + 1).keys()].map(cuota => (
-    <option key={cuota} value={cuota}>{cuota}</option>
-  ));
-
-  // Array años de egreso
-  const anios = Array.from({ length: 2023 - 1990 + 1 }, (v, k) => 1990 + k);
   
-  // Manejador para el envío del formulario
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+    event.preventDefault();
 
     let estudiante = {
       rut: rut,
@@ -56,13 +54,14 @@ export default function IngresoEstudiante() {
     try {
       const response = await EstudianteService.ingresarEstudiante(estudiante);
 
-      console.log(response.data); // Tratar la respuesta del servidor como se desee
+      console.log(estudiante);
     } catch (error) {
       console.error("Hubo un error al enviar los datos del estudiante:", error);
     }
+
+    return redirect("/");
   };
 
-  // JSX para el formulario
   return (
     <Layout>
     <form onSubmit={handleSubmit} className="max-w-md mx-auto my-10 p-8 border rounded-lg shadow-lg">
