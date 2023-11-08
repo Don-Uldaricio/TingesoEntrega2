@@ -23,32 +23,30 @@ public class ArancelService {
     @Autowired
     RestTemplate restTemplate;
 
-    public Arancel crearArancel(Estudiante e) {
+    public void crearArancel(Estudiante e) {
         Arancel arancel = new Arancel();
+        arancel.setRutEstudiante(e.getRut());
         if (e.getNumeroCuotas() == 0) {
             arancel.setMonto((int) (1500000 * 0.5));
             arancel.setNumCuotas(0);
-            arancel.setRutEstudiante(e.getRut());
             arancelRepository.save(arancel);
         } else {
             String tipoColegio = e.getTipoColegio();
             int aniosEgreso = diferenciaFechaActual(e.getEgreso());
             arancel.setDescuento(calcularDescuento(tipoColegio, aniosEgreso));
             arancel.setMonto((int) (1500000 * (1 - arancel.getDescuento())));
-            arancel.setRutEstudiante(e.getRut());
             arancel.setNumCuotas(e.getNumeroCuotas());
             arancelRepository.save(arancel);
             try {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<Estudiante> request = new HttpEntity<>(e, headers);
+                HttpEntity<Arancel> request = new HttpEntity<>(arancel, headers);
                 String cuotaServiceUrl = "http://backend-cuota-service/cuotas/crear-cuotas";
-                restTemplate.postForObject(cuotaServiceUrl, e, Estudiante.class);
+                restTemplate.postForObject(cuotaServiceUrl, request, ArrayList.class);
             } catch (RestClientException err) {
                 err.printStackTrace();
             }
         }
-        return arancel;
     }
 
     public int diferenciaFechaActual(int fecha) {

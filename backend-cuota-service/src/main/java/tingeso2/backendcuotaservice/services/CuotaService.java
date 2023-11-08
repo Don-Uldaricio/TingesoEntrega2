@@ -31,6 +31,7 @@ public class CuotaService {
             cuota.setPagado(false);
             cuota.setFechaPago("");
             cuota.setIdArancel(arancel.getIdArancel());
+            cuota.setRutEstudiante(arancel.getRutEstudiante());
 
             // Seteamos la fecha de expiración de cada cuota
             if (i < 9) {

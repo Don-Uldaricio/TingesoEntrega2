@@ -45,17 +45,15 @@ public class EstudianteService {
         e.setPromedioNotas(0f);
         e.setNumeroExamenes(0);
         estudianteRepository.save(e);
-        /*
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Estudiante> request = new HttpEntity<>(e, headers);
             String arancelServiceUrl = "http://backend-arancel-service/aranceles/generar-plantilla";
-            restTemplate.postForObject(arancelServiceUrl, request, Estudiante.class);
+            restTemplate.postForObject(arancelServiceUrl, request, Arancel.class);
         } catch (RestClientException err) {
             err.printStackTrace();
         }
-        */
         return e;
     }
 

@@ -16,6 +16,6 @@ public interface CuotaRepository extends JpaRepository<Cuota, Long> {
     @Query("select c from Cuota c where c.idArancel = :idArancel")
     ArrayList<Cuota> findByIdArancel(@Param("idArancel")Long idArancel);
 
-    @Query("select c from Cuota c, Arancel a where a.rutEstudiante = :rut and c.idArancel = a.idArancel")
+    @Query("select c from Cuota c where c.rutEstudiante = :rutEstudiante")
     ArrayList<Cuota> findByRutEstudiante(@Param("rut")String rut);
 }
