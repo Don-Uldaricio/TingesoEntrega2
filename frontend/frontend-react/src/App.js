@@ -7,6 +7,8 @@ import IngresoEstudiante from './components/IngresoEstudiante';
 import ConsultarCuotas from './components/ConsultarCuotas';
 import RegistrarPago from './components/RegistrarPago';
 import ImportarNotas from './components/ImportarNotas';
+import PagoExitoso from './components/PagoExitoso';
+import IngresoExitoso from './components/IngresoExitoso';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Route path="/consultar-cuotas" element={<ConsultarCuotas />} />
           <Route path="/registrar-pago" element={<RegistrarPago />} />
           <Route path="/importar-notas" element={<ImportarNotas />} />
+          <Route path="/pago-exitoso" element={<PagoExitoso />} />
+          <Route path="/ingreso-exitoso" element={<IngresoExitoso />} />
         </Routes>
       </Router>
     </div>

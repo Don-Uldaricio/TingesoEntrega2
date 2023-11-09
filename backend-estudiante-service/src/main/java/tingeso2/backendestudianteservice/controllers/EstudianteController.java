@@ -1,5 +1,6 @@
 package tingeso2.backendestudianteservice.controllers;
 
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,9 @@ import tingeso2.backendestudianteservice.models.Cuota;
 import tingeso2.backendestudianteservice.services.EstudianteService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/estudiantes")
@@ -43,31 +46,29 @@ public class EstudianteController {
         return ResponseEntity.ok(estudiante);
     }
 
-    @GetMapping("/cuotas/{rut}")
-    public ResponseEntity<List<Cuota>> getCuotas(@PathVariable("rut") String rut){
-        Estudiante estudiante = estudianteService.findByRut(rut);
-        if(estudiante == null){
-            return ResponseEntity.notFound().build();
-        }
-        List<Cuota> cuotas = estudianteService.buscarCuotasPorRut(rut);
-        if(cuotas.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(cuotas);
-    }
+    @PostMapping("/consultar-planilla/{rut}")
+    public ResponseEntity<Map<String, Object>> consultarPlanilla(@PathVariable("rut") String rut) {
+        ArrayList<Cuota> cuotasEstudiante = estudianteService.actualizarCuotas(rut);
+        Arancel arancel = estudianteService.actualizarArancel(rut, cuotasEstudiante);
+        ArrayList<Integer> datosArancel = estudianteService.datosPagoArancel(rut, cuotasEstudiante);
 
-    @PostMapping("/actualizar-cuotas/{rut}")
-    public ResponseEntity<List<Cuota>> actualizarCuotasEstudiante(@PathVariable("rut") String rut) {
         Estudiante estudiante = estudianteService.findByRut(rut);
         if (estudiante == null) {
             return ResponseEntity.notFound().build();
         }
-        List<Cuota> cuotas = estudianteService.buscarCuotasPorRut(rut);
-        if (cuotas.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        estudianteService.generarPlanilla(rut);
-        return ResponseEntity.ok(cuotas);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("cuotasEstudiante", cuotasEstudiante);
+        response.put("arancel", arancel);
+        response.put("estudiante", estudiante);
+        response.put("datosArancel", datosArancel);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/generar-cuotas/{rut}")
+    public ResponseEntity<ArrayList<Cuota>> generarPlanillaPago(@PathVariable("rut") String rut) {
+        return ResponseEntity.ok(estudianteService.actualizarCuotas(rut));
     }
 
 }

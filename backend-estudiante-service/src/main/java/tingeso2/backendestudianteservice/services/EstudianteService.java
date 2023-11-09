@@ -1,9 +1,8 @@
 package tingeso2.backendestudianteservice.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -33,15 +32,7 @@ public class EstudianteService {
         return estudianteRepository.findByRut(rut);
     }
 
-    public List<Cuota> buscarCuotasPorRut(String rut) {
-        return restTemplate.getForObject("http://backend-cuota-service/cuotas/" + rut, List.class);
-    }
-
-    public Arancel buscarArancelPorRut(String rut) {
-        return restTemplate.getForObject("http://backend-arancel-service/aranceles/" + rut, Arancel.class);
-    }
-
-    public Estudiante ingresarEstudiante(Estudiante e) {
+    public void ingresarEstudiante(Estudiante e) {
         e.setPromedioNotas(0f);
         e.setNumeroExamenes(0);
         estudianteRepository.save(e);
@@ -49,26 +40,48 @@ public class EstudianteService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Estudiante> request = new HttpEntity<>(e, headers);
-            String arancelServiceUrl = "http://backend-arancel-service/aranceles/generar-plantilla";
-            restTemplate.postForObject(arancelServiceUrl, request, Arancel.class);
+            String arancelServiceUrl = "http://backend-arancel-service/aranceles/generar-planilla";
+            restTemplate.postForObject(arancelServiceUrl, request, Void.class);
         } catch (RestClientException err) {
             err.printStackTrace();
         }
-        return e;
     }
 
-    public void generarPlanilla(String rut) {
-        try {
-            String arancelServiceUrl = "http://backend-arancel-service/aranceles/actualizar/" + rut;
-            restTemplate.postForObject(arancelServiceUrl, rut, Void.class);
-        } catch (RestClientException e) {
-            e.printStackTrace();
-        }
+    public ArrayList<Cuota> actualizarCuotas(String rut) {
+        String cuotaServiceUrl = "http://backend-cuota-service/cuotas/actualizar-cuotas/" + rut;
+        ResponseEntity<ArrayList<Cuota>> response = restTemplate.exchange(cuotaServiceUrl, HttpMethod.POST,
+                null, new ParameterizedTypeReference<ArrayList<Cuota>>() {}
+        );
+        return response.getBody();
     }
 
-    public ArrayList<Integer> datosPagoArancel(String rut) {
-        String arancelServiceUrl = "http://backend-arancel-service/aranceles/datos-arancel/" + rut;
-        return restTemplate.postForObject(arancelServiceUrl, rut, ArrayList.class);
+    public Arancel actualizarArancel(String rut, ArrayList<Cuota> cuotas) {
+        String arancelServiceUrl = "http://backend-arancel-service/aranceles/actualizar-arancel/" + rut;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<ArrayList<Cuota>> requestEntity = new HttpEntity<>(cuotas, headers);
+        ResponseEntity<Arancel> response = restTemplate.exchange(
+                arancelServiceUrl,
+                HttpMethod.POST,
+                requestEntity,
+                new ParameterizedTypeReference<Arancel>() {}
+        );
+        return response.getBody();
+    }
+
+
+    public ArrayList<Integer> datosPagoArancel(String rut, ArrayList<Cuota> cuotas) {
+        String arancelServiceUrl = "http://backend-arancel-service/aranceles/calcular-datos-arancel/" + rut;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<ArrayList<Cuota>> requestEntity = new HttpEntity<>(cuotas, headers);
+        ResponseEntity<ArrayList<Integer>> response = restTemplate.exchange(
+                arancelServiceUrl,
+                HttpMethod.POST,
+                requestEntity,
+                new ParameterizedTypeReference<ArrayList<Integer>>() {}
+        );
+        return response.getBody();
     }
 
     public void calcularDescuentoNotas(String[] datos) {

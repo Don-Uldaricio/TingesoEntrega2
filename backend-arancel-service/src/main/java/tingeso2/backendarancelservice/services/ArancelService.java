@@ -1,9 +1,8 @@
 package tingeso2.backendarancelservice.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +11,7 @@ import tingeso2.backendarancelservice.models.Cuota;
 import tingeso2.backendarancelservice.models.Estudiante;
 import tingeso2.backendarancelservice.repositories.ArancelRepository;
 
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -42,7 +42,7 @@ public class ArancelService {
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 HttpEntity<Arancel> request = new HttpEntity<>(arancel, headers);
                 String cuotaServiceUrl = "http://backend-cuota-service/cuotas/crear-cuotas";
-                restTemplate.postForObject(cuotaServiceUrl, request, ArrayList.class);
+                restTemplate.postForObject(cuotaServiceUrl, request, Void.class);
             } catch (RestClientException err) {
                 err.printStackTrace();
             }
@@ -76,49 +76,43 @@ public class ArancelService {
     }
 
     public Arancel buscarPorRut(String rut) {
-        List<Arancel> aranceles = arancelRepository.findAll();
-        for (Arancel a: aranceles) {
-            if (Objects.equals(a.getRutEstudiante(), rut)) {
-                return a;
+        return arancelRepository.findByRut(rut);
+    }
+
+    public ArrayList<Cuota> buscarCuotas(String rut) {
+        Arancel arancel = buscarPorRut(rut);
+        if (arancel != null && arancel.getNumCuotas() != 0) {
+            String cuotaServiceUrl = "http://backend-cuota-service/cuotas/" + rut;
+            ResponseEntity<ArrayList<Cuota>> response = restTemplate.exchange(cuotaServiceUrl, HttpMethod.GET,
+                    null, new ParameterizedTypeReference<ArrayList<Cuota>>() {}
+            );
+            return response.getBody();
+        }
+        return null;
+    }
+
+    public Arancel actualizarArancel(String rut, ArrayList<Cuota> cuotas) {
+        int nuevoArancel = 0;
+        Arancel arancel = buscarPorRut(rut);
+        if (arancel != null) {
+            if (arancel.getNumCuotas() != 0) {
+                for (Cuota c: cuotas) {
+                    nuevoArancel += (int) (c.getMonto() * (1 + c.getInteres()));
+                }
+                arancel.setMonto(nuevoArancel);
+                arancelRepository.save(arancel);
+                return arancel;
             }
         }
         return null;
     }
 
-    public ArrayList<Cuota> buscarCuotas(String rut) {
-        Arancel arancel = buscarPorRut(rut);
-        if (arancel != null) {
-            if (arancel.getNumCuotas() != 0) {
-                String cuotaServiceUrl = "http://backend-cuota-service/cuotas/listar-cuotas/" + rut;
-                return restTemplate.getForObject(cuotaServiceUrl, ArrayList.class);
-            }
-        }
-        return new ArrayList<>();
-    }
-
-    public void actualizarArancel(String rut) {
-        int nuevoArancel = 0;
-        Arancel arancel = buscarPorRut(rut);
-        if (arancel != null) {
-            if (arancel.getNumCuotas() != 0) {
-                ArrayList<Cuota> cuotas = buscarCuotas(rut);
-                String cuotaServiceUrl = "http://backend-cuota-service/cuotas/actualizar-cuotas";
-                restTemplate.put(cuotaServiceUrl, cuotas);
-                for (Cuota c: cuotas) {
-                    nuevoArancel = nuevoArancel + (int) (c.getMonto() * (1 + c.getInteres()));
-                }
-                arancel.setMonto(nuevoArancel);
-                arancelRepository.save(arancel);
-            }
-        }
-    }
-
     // Calcula datos del arancel
-    public ArrayList<Integer> calcularDatosArancel(String rut) {
+    public ArrayList<Integer> calcularDatosArancel(String rut, ArrayList<Cuota> cuotas) {
         Arancel arancel = buscarPorRut(rut);
         ArrayList<Integer> datosArancel = new ArrayList<>();
         if (arancel.getNumCuotas() != 0) {
-            ArrayList<Integer> datosCuotas = calcularDatosCuotas(rut);
+            ArrayList<Integer> datosCuotas = calcularDatosCuotas(cuotas);
             datosArancel.add(datosCuotas.get(0)); // Monto pagado
             datosArancel.add(arancel.getMonto() - datosArancel.get(0)); // Monto por pagar
             datosArancel.add(datosCuotas.get(1)); // N cuotas pagadas
@@ -129,8 +123,7 @@ public class ArancelService {
     }
 
     // Calcula datos de las cuotas útiles en el reporte
-    public ArrayList<Integer> calcularDatosCuotas(String rut) {
-        ArrayList<Cuota> cuotas = buscarCuotas(rut);
+    public ArrayList<Integer> calcularDatosCuotas(ArrayList<Cuota> cuotas) {
         ArrayList<Integer> cuotasPagadas = new ArrayList<>(); // Monto pagado y cantidad de cuotas pagadas
         cuotasPagadas.add(0); // Monto pagado
         cuotasPagadas.add(0); // Numero de cuotas pagadas
@@ -178,7 +171,7 @@ public class ArancelService {
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody);
 
         // Realizar la petición POST
-        restTemplate.put(cuotaServiceUrl, requestEntity);
+        restTemplate.postForObject(cuotaServiceUrl, requestEntity, Void.class);
     }
 
 }

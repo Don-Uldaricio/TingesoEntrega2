@@ -18,8 +18,6 @@ public class CuotaService {
 
     public Cuota buscarCuotaPorId(Integer idCuota) { return cuotaRepository.findById(idCuota);}
 
-    public void guardarCuota(Cuota c) { cuotaRepository.save(c); }
-
     // Método invocado por ArancelService que se encarga de crear las cuotas
     public void crearCuotas(Arancel arancel) {
         int valorCuota = arancel.getMonto() / arancel.getNumCuotas();
@@ -58,24 +56,26 @@ public class CuotaService {
     }
 
     // Cambia el estado de una cuota a pagado y setea la fecha en la que se realizó
-    public Cuota pagarCuota(Cuota c) {
+    public void pagarCuota(Cuota c) {
         c.setPagado(true);
         c.setFechaPago(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        return c;
+        cuotaRepository.save(c);
     }
 
     // Actualiza el valor de las cuotas calculando sus meses de atraso y el interés
-    public void actualizarCuotas(ArrayList<Cuota> cuotas) {
+    public ArrayList<Cuota> actualizarCuotas(String rut) {
+        ArrayList<Cuota> cuotas = buscarCuotasPorRut(rut);
         for (Cuota c: cuotas) {
             if (!c.getPagado()) {
-                calcularAtrasoCuota(c);
+                c = calcularAtrasoCuota(c);
                 cuotaRepository.save(c);
             }
         }
+        return cuotas;
     }
 
     // Calcula el interés de una cuota por meses de atraso
-    public void calcularAtrasoCuota(Cuota cuota) {
+    public Cuota calcularAtrasoCuota(Cuota cuota) {
         int mesesAtraso = calcularMesesAtraso(cuota);
         if (mesesAtraso == 0) {
             cuota.setInteres(0);
@@ -89,6 +89,7 @@ public class CuotaService {
             cuota.setInteres(0.15f);
         }
         cuota.setMesesAtraso(mesesAtraso);
+        return cuota;
     }
 
     // Calcula los meses de atraso de una cuota

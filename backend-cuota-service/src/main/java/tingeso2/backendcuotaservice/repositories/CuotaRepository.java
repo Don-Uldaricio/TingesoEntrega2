@@ -7,15 +7,16 @@ import org.springframework.stereotype.Repository;
 import tingeso2.backendcuotaservice.entities.Cuota;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public interface CuotaRepository extends JpaRepository<Cuota, Long> {
     @Query("select c from Cuota c where c.idCuota = :idCuota")
-    Cuota findById(@Param("idCuota")Integer idCuota);
+    Cuota findById(@Param("idCuota") Integer idCuota);
 
     @Query("select c from Cuota c where c.idArancel = :idArancel")
-    ArrayList<Cuota> findByIdArancel(@Param("idArancel")Long idArancel);
+    List<Cuota> findByIdArancel(@Param("idArancel")Long idArancel);
 
-    @Query("select c from Cuota c where c.rutEstudiante = :rutEstudiante")
-    ArrayList<Cuota> findByRutEstudiante(@Param("rut")String rut);
+    @Query("select c from Cuota c where c.rutEstudiante = :rut")
+    ArrayList<Cuota> findByRutEstudiante(@Param("rut") String rut);
 }

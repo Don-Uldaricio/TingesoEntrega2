@@ -61,7 +61,7 @@ export default function IngresoEstudiante() {
       console.error("Hubo un error al enviar los datos del estudiante:", error);
     }
 
-    navigate('/');
+    navigate('/ingreso-exitoso');
   };
 
   return (
