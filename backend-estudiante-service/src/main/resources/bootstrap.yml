@@ -11,13 +11,13 @@ spring:
       ddl-auto: create
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5432/tingesoestudiante
+    url: jdbc:postgresql://localhost:5432/tingesoestudiante
     username: postgres
     password: 1234
   cloud:
     config:
       enabled: true
-      uri: http://backend-config-service:8090
+      uri: http://localhost:8090
   sql:
     init:
       platform: postgres

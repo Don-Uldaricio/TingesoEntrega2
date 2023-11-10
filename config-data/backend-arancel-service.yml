@@ -7,9 +7,9 @@ eureka:
     service-url:
       default-zone: http://backend-eureka-service:8761/eureka/
   instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:8083}
-    prefer-ip-address: true
-    
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${server.port}}
+    hostname: backend-arancel-service
+
 management:
   endpoints:
     web:
