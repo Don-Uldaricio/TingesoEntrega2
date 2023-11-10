@@ -6,7 +6,5 @@ eureka:
     register-with-eureka: false
     service-url:
       default-zone: http://backend-eureka-service:8761/eureka/
-
-instance:
-  prefer-ip-address: true
-  ip-address: ${status.podIP}
+  instance:
+    prefer-ip-address: true
