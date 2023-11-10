@@ -18,12 +18,12 @@ spec:
         - name: backend-estudiante-service
           image: donuldaricio/backend-estudiante-service:latest
           ports:
-            - containerPort: 8082
+            - containerPort: 8090
           env:
             - name: SPRING_CLOUD_CONFIG_URI
               value: http://backend-config-service:8090
             - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-              value: http://backend-eureka-service.default.svc.cluster.local:8761/eureka/
+              value: http://backend-eureka-service:8761
             - name: eureka.instance.preferIpAddress
               value: "true"
             - name: POSTGRES_DB_HOST

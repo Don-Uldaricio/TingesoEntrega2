@@ -16,9 +16,9 @@ spec:
     spec:
       containers:
         - name: backend-cuota-service
-          image: donuldaricio/backend-estudiante-service:latest
+          image: donuldaricio/backend-cuota-service:latest
           ports:
-            - containerPort: 8084
+            - containerPort: 8090
           env:
             - name: SPRING_CLOUD_CONFIG_URI
               value: http://backend-config-service:8090
@@ -31,11 +31,11 @@ spec:
                 configMapKeyRef:
                   name: postgres-config-map
                   key: POSTGRES_DB_HOST
-            - name: POSTGRES_DB_CUOTAS
+            - name: POSTGRES_DB_CUOTA
               valueFrom:
                 configMapKeyRef:
                   name: postgres-config-map
-                  key: POSTGRES_DB_CUOTAS
+                  key: POSTGRES_DB_CUOTA
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:

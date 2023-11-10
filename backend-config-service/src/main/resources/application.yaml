@@ -7,6 +7,6 @@ spring:
         git:
           default-label: main
           uri: https://github.com/Don-Uldaricio/TingesoEntrega2
-          search-paths: config-data
+          search-paths: "config-data"
   application:
     name: backend-config-service
